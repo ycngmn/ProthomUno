@@ -36,8 +36,6 @@ def collage(photo_path,template):
     return 'assets/images/collage.jpeg'
 
 
-from PIL import Image, ImageDraw, ImageFont
-
 def add_text(fetch):
 
     choice_template = random.choices(['template1','template2'],weights=(70,30),k=1)[0]
