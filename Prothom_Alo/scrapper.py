@@ -3,6 +3,8 @@ from bs4 import BeautifulSoup as bs
 
 def extract(url):
 
+    
+
     soup = bs(requests.get(url).text,'html.parser')
 
     subtopic = soup.find('h2',class_='uv2z3') # not always available
@@ -16,7 +18,8 @@ def extract(url):
     caption_src = scaption.find_next('span') 
     capsrc = caption_src.text if caption_src else None
     if caption_src: caption_src.decompose() # otherwise it's included in caption
-    caption = scaption.find_next('figcaption').text 
+    caption = scaption.find_next('figcaption')
+    caption = caption.text if caption else '' 
     full_caption = (caption + ' | ' + capsrc) if capsrc else caption
 
     date = soup.find('div',class_='xuoYp').find('span').text.split(':')[1].strip(" ")
@@ -26,15 +29,11 @@ def extract(url):
 
 
     p = [url,title,summary,topic,subtopic,thumb,tags,date,full_caption]
-
-    with open('an.txt','w+',encoding='utf-8') as f:
-        for elt in p:
-            f.write(f'{elt}\n')
     return p
 
 def download_thumb(thumb_url):
-    with open('Prothom_Alo/assets/images/photo.webp','+wb') as file:
+    with open('assets/images/photo.webp','+wb') as file:
         bytes = requests.get(thumb_url).content
         file.write(bytes)
-    return "Prothom_Alo/assets/images/photo.webp"
+    return "assets/images/photo.webp"
     

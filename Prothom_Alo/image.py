@@ -7,7 +7,7 @@ from PIL import Image
 
 def collage(photo_path,template):
 
-    template = Image.open(f"Prothom_Alo/assets/{template}.png").convert("RGBA")
+    template = Image.open(f"assets/{template}.png").convert("RGBA")
     photo = Image.open(photo_path).convert("RGBA")
 
     # Resize to get a height of 720 pixels + maintain aspect ratio
@@ -30,10 +30,10 @@ def collage(photo_path,template):
     collage.paste(photo, (0, 0))
     collage.paste(template, (0, 0), mask=template)
 
-    collage.convert("RGB").save('Prothom_Alo/assets/images/collage.jpeg')
+    collage.convert("RGB").save('assets/images/collage.jpeg')
     #collage.show()
 
-    return 'Prothom_Alo/assets/images/collage.jpeg'
+    return 'assets/images/collage.jpeg'
 
 
 from PIL import Image, ImageDraw, ImageFont
@@ -50,19 +50,19 @@ def add_text(fetch):
 
     # Initial font size and settings
     initial_font_size = 70
-    bold_font = ImageFont.truetype('Prothom_Alo/assets/ShurjoWeb_700_v5_1.ttf', initial_font_size)
+    bold_font = ImageFont.truetype('assets/ShurjoWeb_700_v5_1.ttf', initial_font_size)
     title = fetch[1] 
     title_color = dico[choice_template]['title_color']
-    title_position = (200, 765)
+    title_position = (150, 765)
 
     if fetch[4]:
         subtopic = fetch[4]
-        subtopic_font = ImageFont.truetype('Prothom_Alo/assets/ShurjoWeb_400_v5_1.ttf', 40)
+        subtopic_font = ImageFont.truetype('assets/ShurjoWeb_400_v5_1.ttf', 40)
         subtopic_color = (67,67,69)
         subtopic_pos = ((img.width - subtopic_font.getlength(subtopic)) / 2 ,715)
         draw.text(subtopic_pos,subtopic,subtopic_color,subtopic_font)
 
-    regular_font = ImageFont.truetype('Prothom_Alo/assets/ShurjoWeb_400_v5_1.ttf', 25)
+    regular_font = ImageFont.truetype('assets/ShurjoWeb_400_v5_1.ttf', 25)
     topic = fetch[3] + " | "
     topic_color = (0,0,0)
     topic_position = (50,1030)
@@ -72,14 +72,14 @@ def add_text(fetch):
     date_position = (50+regular_font.getlength(topic),1030) # to calculate
     
     caption_font_size = 20
-    caption_font = ImageFont.truetype('Prothom_Alo/assets/ShurjoWeb_400_v5_1.ttf',caption_font_size )
+    caption_font = ImageFont.truetype('assets/ShurjoWeb_400_v5_1.ttf',caption_font_size )
     caption = fetch[-1]
     caption_color = (255,255,255)
     caption_position = (670,680)
 
 
     # Define maximum width and height
-    max_width = img.width - title_position[0] - 200
+    max_width = img.width - title_position[0] - 120
     max_height = 160  # Maximum height for the text block
 
     # Function to calculate the text height
@@ -112,17 +112,18 @@ def add_text(fetch):
     
     while total_text_height > max_height and initial_font_size > 10: 
         initial_font_size -= 1
-        bold_font = ImageFont.truetype('Prothom_Alo/assets/ShurjoWeb_700_v5_1.ttf', initial_font_size)
+        bold_font = ImageFont.truetype('assets/ShurjoWeb_700_v5_1.ttf', initial_font_size)
         lines = split_text_into_lines(title, bold_font, max_width)
-        total_text_height = calculate_text_height(lines, bold_font)
+        total_text_height = calculate_text_height(lines, bold_font)+10
 
     # Draw each line of text, center-aligned
     y = title_position[1]
+    max_line_width = max([bold_font.getlength(line) for line in lines])
     for line in lines:
         line_width = bold_font.getlength(line)
-        x = (img.width - line_width) / 2  # Center the text horizontally
+        x = (max_line_width - line_width) / 2 + (img.width - max_line_width) / 2 # Center the text horizontally
         draw.text((x, y), line, font=bold_font, fill=title_color)
-        y += bold_font.getbbox(line)[3]   # Move to the next line based on the font size
+        y += bold_font.getbbox(line)[3]+10   # Move to the next line based on the font size
     
     max_caption_width = 400
     caption_lines = split_text_into_lines(caption, caption_font, max_caption_width)
@@ -146,5 +147,5 @@ def add_text(fetch):
     draw.text(topic_position, topic, fill=topic_color, font=regular_font)
     draw.text(date_position, date, fill=date_color, font=regular_font)
     
-    img.save('Prothom_Alo/assets/images/inserted.jpeg')
+    img.save('assets/images/inserted.jpeg')
     #img.show()

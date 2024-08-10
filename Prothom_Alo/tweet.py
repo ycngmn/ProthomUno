@@ -1,28 +1,44 @@
-import tweepy
+from twikit import Client
 
-def post_tweet(fetch_data):
+client = Client()
 
-    api_key = ''
-    api_secret = ''
-    access_token = ''
-    access_token_secret = ''
-    bearer_token= ''
+""" # convert chrome cookies to support twikit 
+def convert_cookies(): 
+    
+    import json
 
-    auth = tweepy.OAuth1UserHandler(api_key, api_secret,access_token,
-            access_token_secret) 
+    with open(r'Prothom_Alo\assets\cookie.json', 'r') as file: 
+        data = json.load(file)
 
-    client_v1 = tweepy.API(auth)
-    client_v2 = tweepy.Client(
-            bearer_token=bearer_token,
-            consumer_key=api_key,
-            consumer_secret=api_secret,
-            access_token=access_token,
-            access_token_secret=access_token_secret)
+    result = {}
+    for item in data:
+        name = item.get("name")
+        value = item.get("value")
+        if name and value:
+            result[name] = value
+
+    with open(r'Prothom_Alo\assets\cookie.json', 'w') as file:
+        json.dump(result, file, indent=4)
+"""
+
+
+async def main(fetch_data):
+    
+    client.load_cookies(r'assets/cookie.json')
 
     cap = fetch_data[2]
     tags = " ".join(['#'+tag.replace(' ','_') for tag in fetch_data[6].split(',')])
-    media_path = r'Prothom_Alo/assets/images/inserted.jpeg'
-    media = client_v1.media_upload(filename=media_path)
-    response = client_v2.create_tweet(text=cap+'\n\n'+tags, media_ids=[media.media_id])
-    tweet_url = response.data['text'].split(' ')[-1].strip("' ")
-    print("Tweeted  !", tweet_url)
+
+    
+
+    media_path = r'assets/images/inserted.jpeg'
+    media_id = [await client.upload_media(media_path)]
+
+    # Create a tweet with the provided text and attached media
+    a = await client.create_tweet(
+    text=cap+'\n\n'+tags,
+    media_ids=media_id
+    )
+    
+    print("Tweeted  !",a.full_text.split(' ')[-1])
+
