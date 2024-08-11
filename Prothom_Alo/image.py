@@ -131,6 +131,10 @@ def add_text(fetch):
     caption_lines = split_text_into_lines(caption, caption_font, max_caption_width)
     total_caption_height = calculate_text_height(caption_lines, caption_font)
 
+    if len(caption_lines) > 1 and len(caption_lines[-1].strip(' ').split(' ')) == 1:
+        caption_lines[-2] += ' ' + caption_lines[-1]
+        caption_lines = caption_lines[:-1] 
+        
     # Adjust the caption position if it's less than 430px from the bottom
     bottom_y = caption_position[1] + total_caption_height
     while bottom_y > img.height - 435 and caption_position[1] > 0:
