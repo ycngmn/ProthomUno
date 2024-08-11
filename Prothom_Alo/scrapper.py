@@ -1,4 +1,4 @@
-import requests, re
+import requests
 from bs4 import BeautifulSoup as bs
 
 def extract(url):

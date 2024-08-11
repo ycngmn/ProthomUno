@@ -113,6 +113,10 @@ def add_text(fetch):
         bold_font = ImageFont.truetype('assets/ShurjoWeb_700_v5_1.ttf', initial_font_size)
         lines = split_text_into_lines(title, bold_font, max_width)
         total_text_height = calculate_text_height(lines, bold_font)+10
+    
+    if len(lines) > 1 and len(lines[-1].strip(' ').split(' ')) == 1:
+        lines[-2] += ' ' + lines[-1]
+        lines = lines[:-1] 
 
     # Draw each line of text, center-aligned
     y = title_position[1]
@@ -141,7 +145,7 @@ def add_text(fetch):
         draw.text((x, y), line, font=caption_font, fill=caption_color)
         y += caption_font.getbbox(line)[3]
 
-    # Draw the topic and date text
+    
     draw.text(topic_position, topic, fill=topic_color, font=regular_font)
     draw.text(date_position, date, fill=date_color, font=regular_font)
     
