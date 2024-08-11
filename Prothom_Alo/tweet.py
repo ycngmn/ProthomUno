@@ -1,3 +1,7 @@
+# Deprecated, risky as it may suspend your account.
+# But offers unlimited requests :/
+# Use tweet_official.py instead. 
+
 from twikit import Client
 
 client = Client()
