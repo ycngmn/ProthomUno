@@ -11,18 +11,19 @@ db.commit()
 
 
 while True:
-    # Get the last entry to the database
-    get_db = cu.execute("SELECT url FROM news ORDER BY id DESC LIMIT 1").fetchone()
-    if get_db: get_db = get_db[0]
+    try:
+        # Get the last entry to the database
+        get_db = cu.execute("SELECT url FROM news ORDER BY id DESC LIMIT 1").fetchone()
+        if get_db: get_db = get_db[0]
 
-    # Get the latest article URL
-    fetch = requests.get('https://www.prothomalo.com/collection/latest')
-    fetch.raise_for_status()
-    pattern = r'<div\s+class="stKlc">.*?<a[^>]*\s+href="([^"]+)"'
-    url = re.search(pattern, fetch.text).group(1)
+        # Get the latest article URL
+        fetch = requests.get('https://www.prothomalo.com/collection/latest')
+        fetch.raise_for_status()
+        pattern = r'<div\s+class="stKlc">.*?<a[^>]*\s+href="([^"]+)"'
+        url = re.search(pattern, fetch.text).group(1)
 
-    if not url == get_db:
-        try:
+        if not url == get_db:
+        
             print("New article found  ..!", url)
             get_id = cu.execute("SELECT id FROM news ORDER BY id DESC LIMIT 1").fetchone()
             if not get_id: 
@@ -30,6 +31,7 @@ while True:
             else: 
                 get_id = get_id[0]
                 cu.execute(f"DELETE FROM news WHERE id={get_id}")
+                db.commit()
 
             cu.execute(f"INSERT INTO news VALUES({get_id + 1}, '{url}')")
             db.commit()
@@ -42,8 +44,6 @@ while True:
             telegram.post(fetch_data)
             
             print('Waiting for new articles..')
-        except Exception:
+    except Exception:
             traceback.print_exc()
             print("\nException passed. Waiting for new articles..")
-    
-
