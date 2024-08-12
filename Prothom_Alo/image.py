@@ -1,4 +1,4 @@
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageStat
 from scrapper import download_thumb
 import random
 
@@ -54,6 +54,7 @@ def add_text(fetch):
     title_position = (150, 765)
 
     if fetch[4]:
+        title_position = (150, 780)
         subtopic = fetch[4]
         subtopic_font = ImageFont.truetype('assets/ShurjoWeb_400_v5_1.ttf', 40)
         subtopic_color = (67,67,69)
@@ -69,7 +70,7 @@ def add_text(fetch):
     date_color = (102,102,102)
     date_position = (50+regular_font.getlength(topic),1030) # to calculate
     
-    caption_font_size = 20
+    caption_font_size = 22
     caption_font = ImageFont.truetype('assets/ShurjoWeb_400_v5_1.ttf',caption_font_size )
     caption = fetch[-1]
     caption_color = (255,255,255)
@@ -140,6 +141,25 @@ def add_text(fetch):
     while bottom_y > img.height - 435 and caption_position[1] > 0:
         caption_position = (caption_position[0], caption_position[1] - 1)
         bottom_y = caption_position[1] + total_caption_height
+
+    # Change caption color based on it's background
+    def calculate_average_brightness(image, bbox):
+        cropped_image = image.crop(bbox)
+        stat = ImageStat.Stat(cropped_image)
+        r, g, b = stat.mean[:3]
+        return (r + g + b) / 3
+
+    caption_bbox = (caption_position[0], caption_position[1],
+                    caption_position[0] + max_caption_width, caption_position[1] + total_caption_height)
+
+    average_brightness = calculate_average_brightness(img, caption_bbox)
+    brightness_threshold = 128
+
+    if average_brightness > brightness_threshold:
+        caption_color = (0, 0, 0)
+    else:
+        caption_color = (255, 255, 255)
+
 
     # Draw the caption
     y = caption_position[1]
