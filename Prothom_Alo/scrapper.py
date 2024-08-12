@@ -14,13 +14,15 @@ def extract(url):
     summary = soup.find('meta',attrs={'name':'description'})['content']
 
     thumb = soup.find('meta',property='og:image')['content'].split('?')[0]
-    scaption = soup.find('picture', class_='qt-image')
-    caption_src = scaption.find_next('span') 
-    capsrc = caption_src.text if caption_src else None
-    if caption_src: caption_src.decompose() # otherwise it's included in caption
-    caption = scaption.find_next('figcaption')
-    caption = caption.text if caption else '' 
-    full_caption = (caption + ' | ' + capsrc) if capsrc else caption
+    caption = soup.find('figcaption',class_='story-element-image-caption custom-gallery-image')
+    if caption:
+        capsrc = caption.find('span')
+        caption_source = capsrc.text if capsrc else None
+        capsrc.decompose()
+        caption = caption.text if caption else None
+        full_caption = (caption + ' | ' + caption_source) if caption_source else caption
+    else:
+        full_caption = None
 
     date = soup.find('div',class_='xuoYp').find('span').text.split(':')[1].strip(" ")
     if ',' in date: # checks if the text also contains hour:second separated by comma
@@ -28,12 +30,11 @@ def extract(url):
     tags = soup.find('meta',{'name':'keywords'})['content']
 
 
-    p = [url,title,summary,topic,subtopic,thumb,tags,date,full_caption]
-    return p
+    return [url,title,summary,topic,subtopic,thumb,tags,date,full_caption]
+    
 
 def download_thumb(thumb_url):
     with open('assets/images/photo.webp','+wb') as file:
         bytes = requests.get(thumb_url).content
         file.write(bytes)
     return "assets/images/photo.webp"
-    
