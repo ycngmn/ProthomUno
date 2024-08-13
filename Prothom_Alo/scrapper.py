@@ -1,4 +1,4 @@
-import requests
+import requests, re
 from bs4 import BeautifulSoup as bs
 
 def extract(url):
@@ -17,8 +17,10 @@ def extract(url):
     caption = soup.find('figcaption',class_='story-element-image-caption custom-gallery-image')
     if caption:
         capsrc = caption.find('span')
-        caption_source = capsrc.text if capsrc else None
-        capsrc.decompose()
+        if capsrc:
+            caption_source = capsrc.text
+            capsrc.decompose()
+        else: caption_source = None
         caption = caption.text if caption else None
         full_caption = (caption + ' | ' + caption_source) if caption_source else caption
     else:
@@ -31,10 +33,33 @@ def extract(url):
 
 
     return [url,title,summary,topic,subtopic,thumb,tags,date,full_caption]
-    
+
+def extract_glimpses(json_data):
+
+    json_data = requests.get(json_data).text
+
+    image_pattern = re.compile(r'"image-s3-key":\s*"([^"]*)"', re.DOTALL)
+    caption_pattern = re.compile(r'"image-attribution":\s*"([^"]*)".*?"title":\s*"([^"]*)"', re.DOTALL)
+    source_pattern = re.compile(r'"image-attribution":\s*"([^"]*)"', re.DOTALL)
+    title_pattern = re.compile(r'"metadata"\s*:\s*{\s*"[^"]*"\s*:\s*{[^}]*"title"\s*:\s*"([^"]*)"', re.DOTALL)
+
+
+    base_url = "https://images.prothomalo.com/"
+    image_keys = image_pattern.findall(json_data)
+    image_keys = [base_url+a.replace('\\u002F','/') for a in image_keys][:-1]
+
+    caption_keys = [match.group(2) for match in caption_pattern.finditer(json_data)]
+
+    source_keys = source_pattern.findall(json_data)
+
+    title = title_pattern.search(json_data).group(1)
+
+    return (image_keys,caption_keys,source_keys,title)
+
 
 def download_thumb(thumb_url):
     with open('assets/images/photo.webp','+wb') as file:
         bytes = requests.get(thumb_url).content
         file.write(bytes)
     return "assets/images/photo.webp"
+    

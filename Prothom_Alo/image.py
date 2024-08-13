@@ -111,14 +111,16 @@ def add_text(fetch):
         lines[-2] += ' ' + lines[-1]
         lines = lines[:-1] 
 
-        total_title_width = sum(bold_font.getbbox(line)[2] for line in lines)
-        while total_title_width > max_width:
+        max_title_width = max(bold_font.getbbox(line)[2] for line in lines)
+        while max_title_width > max_width:
             initial_font_size -= 1
             bold_font = ImageFont.truetype('assets/ShurjoWeb_700_v5_1.ttf', initial_font_size)
-            total_title_width = sum(bold_font.getbbox(line)[2] for line in lines)
+            max_title_width = max(bold_font.getbbox(line)[2] for line in lines)
 
 
-
+    if len(lines)==1:
+        title_position = (185,780)
+    
     # Draw each line of text, center-aligned
     y = title_position[1]
     max_line_width = max([bold_font.getlength(line) for line in lines])
@@ -133,10 +135,11 @@ def add_text(fetch):
         max_caption_width = 400
         caption_lines = split_text_into_lines(caption, caption_font, max_caption_width)
         
-        if len(caption_lines) > 1 and len(caption_lines[-1].split(' ')) == 1:
-            caption_lines[-2] += ' ' + caption_lines[-1]
-            caption_lines = caption_lines[:-1]
+        if len(caption_lines) > 1 and caption_font.getlength(caption_lines[-1]) <= 105 :
+            lines[-2] += ' ' + lines[-1]
+            lines = lines[:-1] 
         
+
         total_caption_height = sum(caption_font.getbbox(line)[3] for line in caption_lines)
             
         # Adjust the caption position if it's less than 430px from the bottom
