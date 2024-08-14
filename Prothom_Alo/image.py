@@ -5,8 +5,19 @@ import random
 
 from PIL import Image
 
-def collage(photo_path,template):
+def collage(photo_path, template):
+    """
+    This function generates a collage image by combining a given photo with a template.
+    The photo is resized and cropped/padded to fit the template dimensions.
+    The collage is then saved as a JPEG file.
 
+    Parameters:
+    photo_path (str): The file path of the photo to be used in the collage.
+    template (str): The name of the template image file (without the file extension).
+
+    Returns:
+    str: The file path of the generated collage image.
+    """
     template = Image.open(f"assets/{template}.png").convert("RGBA")
     photo = Image.open(photo_path).convert("RGBA")
 
@@ -25,7 +36,7 @@ def collage(photo_path,template):
         new_photo.paste(photo, (left, 0))
         photo = new_photo
 
-    
+
     collage = Image.new("RGBA", (template.width, template.height))
     collage.paste(photo, (0, 0))
     collage.paste(template, (0, 0), mask=template)
@@ -34,6 +45,7 @@ def collage(photo_path,template):
     #collage.show()
 
     return 'assets/images/collage.jpeg'
+
 
 
 def add_text(fetch):
@@ -73,7 +85,7 @@ def add_text(fetch):
     caption_font_size = 22
     caption_font = ImageFont.truetype('assets/ShurjoWeb_400_v5_1.ttf',caption_font_size )
     caption = fetch[-1]
-    caption_position = (670,680)
+    caption_position = (645,645)
 
 
     # Define maximum width and height for title
@@ -101,7 +113,7 @@ def add_text(fetch):
     lines = split_text_into_lines(title, bold_font, max_width)
     total_text_height = sum(bold_font.getbbox(line)[3] for line in lines)
     
-    while total_text_height > max_height and initial_font_size > 10: 
+    while total_text_height > max_height and initial_font_size > 50: 
         initial_font_size -= 1
         bold_font = ImageFont.truetype('assets/ShurjoWeb_700_v5_1.ttf', initial_font_size)
         lines = split_text_into_lines(title, bold_font, max_width)
@@ -112,7 +124,7 @@ def add_text(fetch):
         lines = lines[:-1] 
 
         max_title_width = max(bold_font.getbbox(line)[2] for line in lines)
-        while max_title_width > max_width:
+        while max_title_width > max_width and initial_font_size > 50:
             initial_font_size -= 1
             bold_font = ImageFont.truetype('assets/ShurjoWeb_700_v5_1.ttf', initial_font_size)
             max_title_width = max(bold_font.getbbox(line)[2] for line in lines)
@@ -132,12 +144,12 @@ def add_text(fetch):
     
     # caption
     if caption:
-        max_caption_width = 400
+        max_caption_width = 430
         caption_lines = split_text_into_lines(caption, caption_font, max_caption_width)
         
         if len(caption_lines) > 1 and caption_font.getlength(caption_lines[-1]) <= 105 :
-            lines[-2] += ' ' + lines[-1]
-            lines = lines[:-1] 
+            caption_lines[-2] += ' ' + caption_lines[-1]
+            caption_lines = caption_lines[:-1] 
         
 
         total_caption_height = sum(caption_font.getbbox(line)[3] for line in caption_lines)

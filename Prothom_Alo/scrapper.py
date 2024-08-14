@@ -32,7 +32,7 @@ def extract(url):
     tags = soup.find('meta',{'name':'keywords'})['content']
 
 
-    return [url,title,summary,topic,subtopic,thumb,tags,date,full_caption]
+    return (url,title,summary,topic,subtopic,thumb,tags,date,full_caption)
 
 def extract_glimpses(json_data):
 
