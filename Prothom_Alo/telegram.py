@@ -1,8 +1,8 @@
-import requests
+import requests, json, os
 
 
-bot_token = ''
-channel_id = ''
+bot_token = "" # https://t.me/botfather
+channel_id = '' # replace with yours
 
 def post(fetch_data):
     
@@ -26,31 +26,52 @@ def post(fetch_data):
 def post_multiple_images_as_group(fetch_data: list) -> None:
 
     image_keys = fetch_data[0]
-    caption_keys = fetch_data[1] 
+    caption_keys = fetch_data[1]
     source_keys = fetch_data[2]
+    title = fetch_data[-1]
 
-    image_captions = [(f'assets/images/Glimpses/{i}.jpg', caption_keys[i] +'|'+ source_keys[i]) for i in range(len(image_keys))]
-    
-    url = f'https://api.telegram.org/bot{bot_token}/sendMediaGroup'
 
     media = []
-    for image_path, caption in image_captions:
-        with open(image_path, 'rb') as photo_file:
-            media.append({
-                'type': 'photo',
-                'media': photo_file,
-                'caption': caption,
-                'parse_mode': 'HTML',
-                'disable_web_page_preview': True  # Disable web preview
-            })
-    
-    data = {
+    files = {}
+
+    for i in range(len(image_keys)): 
+        file_path = f'assets/images/Glimpses/{i}.jpg'
+        caption = f"{caption_keys[i]}|{source_keys[i]}"
+
+        # Unique key for each file
+        file_key = f'photo_{i}'
+        media.append({
+            'type': 'photo',
+            'media': f'attach://{file_key}',
+            'caption': caption,
+        })
+
+        with open(file_path, 'rb') as photo_file:
+            files[file_key] = (file_key, photo_file.read())
+
+    # Sending the POST request
+    url = f'https://api.telegram.org/bot{bot_token}/sendMediaGroup'
+    response = requests.post(url, data={
         'chat_id': channel_id,
-        'media': media
-    }
-    response = requests.post(url, json=data)
-    
+        'media': json.dumps(media)},  # Convert the media list to JSON
+    files=files)
+
     if response.status_code == 200:
-        print("Telegram posted multiple images as a group!")
+         url = f'https://api.telegram.org/bot{bot_token}/sendMessage'
+         response = requests.post(url, data={
+                'chat_id': channel_id,
+                'text': title,
+            })
+         print("Telegram posted multiple images as a group!")
+        
+         message_id = response.json().get('result', {}).get('message_id')
+         if message_id:
+            # Pin the message
+            pin_url = f'https://api.telegram.org/bot{bot_token}/pinChatMessage'
+            requests.post(pin_url, data={
+                'chat_id': channel_id,
+                'message_id': message_id,
+                'disable_notification': True})
+
     else:
         print(f"Error posting images to Telegram: {response.text}")

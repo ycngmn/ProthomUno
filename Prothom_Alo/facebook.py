@@ -1,7 +1,7 @@
-import requests, json
+import requests, json, os
 
-page_id = ''
-access_token = ""
+page_id = "" # replace with yours
+access_token = "" # https://developers.facebook.com/
 
 def post(fetch_data):
 
@@ -69,13 +69,8 @@ def multi_posting(fetch_data:list, pin=True):
     upload_url = f"https://graph.facebook.com/v20.0/{page_id}/photos"
 
     # Download the photos
-    for i in range(len(image_keys)):
-        with open(f'assets/images/Glimpses/{i}.jpg','+wb') as file:
-            bytes = requests.get(image_keys[i]).content
-            file.write(bytes)
     
     images = [{'path': f'assets/images/Glimpses/{i}.jpg','caption': caption_keys[i] + ' | ' + source_keys[i]} for i in range(len(image_keys))]
-
 
     photo_ids = []
     for image in images:

@@ -3,8 +3,6 @@ from bs4 import BeautifulSoup as bs
 
 def extract(url):
 
-    
-
     soup = bs(requests.get(url).text,'html.parser')
 
     subtopic = soup.find('h2',class_='uv2z3') # not always available
@@ -32,7 +30,7 @@ def extract(url):
     tags = soup.find('meta',{'name':'keywords'})['content']
 
 
-    return (url,title,summary,topic,subtopic,thumb,tags,date,full_caption)
+    return (url,title,summary,topic,subtopic,thumb,tags,date,full_caption) 
 
 def extract_glimpses(json_data):
 

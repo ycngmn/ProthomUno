@@ -144,12 +144,17 @@ def add_text(fetch):
     
     # caption
     if caption:
-        max_caption_width = 430
+        max_caption_width = 435
         caption_lines = split_text_into_lines(caption, caption_font, max_caption_width)
         
-        if len(caption_lines) > 1 and caption_font.getlength(caption_lines[-1]) <= 105 :
-            caption_lines[-2] += ' ' + caption_lines[-1]
-            caption_lines = caption_lines[:-1] 
+        if caption_font.getlength(caption_lines[-1]) <= 105 :
+           caption_lines[-2] += ' ' + caption_lines[-1]
+           caption_lines = caption_lines[:-1] 
+
+           while caption_font.getlength(caption_lines[-1])>max_caption_width and caption_font_size>10:
+               caption_font_size -= 1
+               caption_font = ImageFont.truetype('assets/ShurjoWeb_400_v5_1.ttf',caption_font_size )
+        
         
 
         total_caption_height = sum(caption_font.getbbox(line)[3] for line in caption_lines)
@@ -183,10 +188,9 @@ def add_text(fetch):
         y = caption_position[1]
         for line in caption_lines:
             line_width = caption_font.getlength(line)
-            if line_width!=0.0:
-                x = caption_position[0] + (max_caption_width - line_width) # right aligned
-                draw.text((x, y), line, font=caption_font, fill=caption_color)
-                y += caption_font.getbbox(line)[3]
+            x = caption_position[0] + (max_caption_width - line_width) # right aligned
+            draw.text((x, y), line, font=caption_font, fill=caption_color)
+            y += caption_font.getbbox(line)[3]
 
     draw.text(topic_position,topic,fill=topic_color,font=regular_font)
     draw.text(date_position, date, fill=date_color, font=regular_font)
